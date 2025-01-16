@@ -1,0 +1,8 @@
+.venv
+.gitignore
+
+!data
+!db
+!handlers
+!keyboards
+!*.py
