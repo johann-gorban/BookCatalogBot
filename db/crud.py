@@ -5,7 +5,7 @@ from config import DB_PATH, FILE_PATH
 
 import sqlite3
 
-def create_database():
+def _create_database():
     """
     Создаёт таблицу в SQLite базе данных.
 
