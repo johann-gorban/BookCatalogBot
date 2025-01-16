@@ -29,7 +29,7 @@ async def kb_list(page: int = 1):
     button_rows = []
     for book in curr_books:
         data = book.get_data()
-        button_rows.append([InlineKeyboardButton(text=data['name'], callback_data=f'get_file:{data["url"]}')])
+        button_rows.append([InlineKeyboardButton(text=data['name'], callback_data=f'get_file:{data["id"]}')])
 
     keyboard = InlineKeyboardBuilder(button_rows)
 

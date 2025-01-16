@@ -4,9 +4,10 @@ from aiogram import Router
 from aiogram.filters import Command
 from aiogram.fsm.context import FSMContext
 from aiogram.types import CallbackQuery, Message
+from aiogram.exceptions import TelegramBadRequest
 
 from classes import Book
-from db.crud import add_book
+from db.crud import add_book, get_book
 from handlers.classes import AddBook
 from keyboards.main import kb_menu, kb_back, kb_list
 
@@ -24,11 +25,16 @@ async def handle_menu_callback(callback: CallbackQuery):
 
 @router.callback_query(lambda cmd: cmd.data.startswith('get_file'))
 async def handle_file_callback(callback: CallbackQuery):
-    file_id = callback.data.split(':')[1]
+    book_id = callback.data.split(':')[1]
+    book = get_book(book_id).get_data()
     try:
-        await callback.message.answer_document(document=file_id, filename='book.pdf', caption='Your book\'s here!', reply_markup=kb_back)
+        await callback.message.answer_document(document=book['url'],
+                                               filename='book.pdf',
+                                               caption='Your book\'s here!'
+                                                       f'\n\"{book["name"]}\" '
+                                                       f'by {book["author"]}')
         await callback.answer()
-    except Exception:
+    except TelegramBadRequest:
         await callback.message.answer('Something went wrong. Try again.', reply_markup=kb_back)
         await callback.answer()
 
@@ -41,8 +47,9 @@ async def handle_nav_callback(callback: CallbackQuery):
         await callback.message.edit_text(text='That\'s all I have', reply_markup=new_kb)
         await callback.answer()
     except Exception as e:
-        await callback.message.edit_text(f'{e}\nTry again.', reply_markup=kb_back)
-        await callback.answer()
+        raise e
+        # await callback.message.edit_text(text='A error occurred. Try again.', reply_markup=kb_back)
+
 
 
 @router.callback_query(lambda cmd: cmd.data.startswith('add_book'))
