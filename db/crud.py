@@ -1,9 +1,8 @@
-import os
-
 from classes import Book, BookList
-from config import DB_PATH, FILE_PATH
+from config import DB_PATH
 
 import sqlite3
+
 
 def _create_database():
     """
@@ -56,21 +55,6 @@ def add_book(book: Book) -> bool:
         return False
 
 
-def remove_book(id: str) -> bool:
-    query = "DELETE FROM books WHERE id = ?;"
-    try:
-        with sqlite3.connect(DB_PATH) as conn:
-            cursor = conn.cursor()
-            cursor.execute(query, (id,))
-            conn.commit()
-
-        if delete_file(str(FILE_PATH / id) + '.pdf'):
-            return True
-        return False
-    except sqlite3.Error:
-        return False
-
-
 def get_books() -> BookList:
     query = "SELECT * FROM books;"
     try:
@@ -111,21 +95,3 @@ def get_book(id: str) -> Book | None:
     except sqlite3.Error as e:
         print(f"Ошибка при получении книги: {e}")
         return None
-
-
-def add_file(data: bytes, url: str) -> bool:
-    try:
-        with open(url, 'wb') as file:
-            file.write(data)
-        return True
-    except Exception:
-        return False
-
-
-def delete_file(url: str) -> bool:
-    try:
-        if os.path.exists(url):
-            os.remove(url)
-        return True
-    except Exception:
-        return False
