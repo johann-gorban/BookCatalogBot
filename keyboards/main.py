@@ -5,15 +5,15 @@ from db.crud import get_books
 from keyboards.config import ITEMS_PER_PAGE
 
 kb_menu = InlineKeyboardMarkup(inline_keyboard=[
-    [InlineKeyboardButton(text='Add new book', callback_data='add_book')],
+    [InlineKeyboardButton(text='Add new book 📚', callback_data='add_book')],
     # [InlineKeyboardButton(text='Delete book', callback_data='delete_book')],
-    [InlineKeyboardButton(text='Get random book', callback_data='get_random')],
-    [InlineKeyboardButton(text='Get book by ID', callback_data='get_book')],
-    [InlineKeyboardButton(text='Get book list', callback_data='navigate:1')]
+    [InlineKeyboardButton(text='🙊 Get random book', callback_data='get_random')],
+    [InlineKeyboardButton(text='Get book by ID 🪪', callback_data='get_book')],
+    [InlineKeyboardButton(text='🗂️ Get book list', callback_data='navigate:1')]
 ])
 
 kb_back = InlineKeyboardMarkup(inline_keyboard=[
-    [InlineKeyboardButton(text='Menu', callback_data='menu')]
+    [InlineKeyboardButton(text='🏠 Menu', callback_data='menu')]
 ])
 
 kb_back_from_everywhere = ReplyKeyboardMarkup(keyboard=[
@@ -41,13 +41,13 @@ async def kb_list(page: int = 1):
     # Navigation buttons
     nav_buttons = []
     if page > 1:
-        nav_buttons.append(InlineKeyboardButton(text='Back', callback_data=f'navigate:{page - 1}'))
+        nav_buttons.append(InlineKeyboardButton(text='⬅️', callback_data=f'navigate:{page - 1}'))
     if page < total_pages and total_items > ITEMS_PER_PAGE:
-        nav_buttons.append(InlineKeyboardButton(text='Next', callback_data=f'navigate:{page + 1}'))
+        nav_buttons.append(InlineKeyboardButton(text='➡️', callback_data=f'navigate:{page + 1}'))
 
     if nav_buttons:
         keyboard.row(*nav_buttons)
 
-    keyboard.add(InlineKeyboardButton(text='Menu', callback_data='menu'))
+    keyboard.add(InlineKeyboardButton(text='🏠 Menu', callback_data='menu'))
 
     return keyboard.as_markup()
