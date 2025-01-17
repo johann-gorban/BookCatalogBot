@@ -5,3 +5,6 @@ class AddBook(StatesGroup):
     author = State()
     # year = State()
     file = State()
+
+class GetBook(StatesGroup):
+    id = State()

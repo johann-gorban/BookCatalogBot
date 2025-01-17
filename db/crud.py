@@ -1,10 +1,10 @@
 from classes import Book, BookList
 from config import DB_PATH
 
-import sqlite3
+import aiosqlite
 
 
-def _create_database():
+async def _create_database():
     """
     Создаёт таблицу в SQLite базе данных.
 
@@ -28,40 +28,37 @@ def _create_database():
     );
     """
     try:
-        # Подключение к базе данных
-        conn = sqlite3.connect(DB_PATH)
-        cursor = conn.cursor()
-
-        # Выполнение запроса на создание таблицы
-        cursor.execute(query)
-        conn.commit()
-    except sqlite3.Error as e:
+        async with aiosqlite.connect(DB_PATH) as conn:
+            cursor = await conn.cursor()
+            await cursor.execute(query)
+            await conn.commit()
+    except aiosqlite.Error as e:
         print(f"Ошибка при работе с SQLite: {e}")
 
 
-def add_book(book: Book) -> bool:
+async def add_book(book: Book) -> bool:
     query = """
     INSERT INTO books (id, name, author, url, year)
     VALUES (?, ?, ?, ?, ?);
     """
     try:
-        with sqlite3.connect(DB_PATH) as conn:
-            cursor = conn.cursor()
-            cursor.execute(query, (book.id, book.name, book.author, book.url, book.year))
-            conn.commit()
+        async with aiosqlite.connect(DB_PATH) as conn:
+            cursor = await conn.cursor()
+            await cursor.execute(query, (book.id, book.name, book.author, book.url, book.year))
+            await conn.commit()
         return True
-    except sqlite3.Error as e:
+    except aiosqlite.Error as e:
         print(f"Ошибка при добавлении книги: {e}")
         return False
 
 
-def get_books() -> BookList:
+async def get_books() -> BookList:
     query = "SELECT * FROM books;"
     try:
-        with sqlite3.connect(DB_PATH) as conn:
-            cursor = conn.cursor()
-            cursor.execute(query)
-            rows = cursor.fetchall()
+        async with aiosqlite.connect(DB_PATH) as conn:
+            cursor = await conn.cursor()
+            await cursor.execute(query)
+            rows = await cursor.fetchall()
 
             books = BookList()
             for row in rows:
@@ -72,17 +69,17 @@ def get_books() -> BookList:
                             year=row[4])
                 books.add_book(book)
         return books
-    except sqlite3.Error:
+    except aiosqlite.Error:
         return BookList()
 
 
-def get_book(id: str) -> Book | None:
+async def get_book(id: str) -> Book | None:
     query = "SELECT * FROM books WHERE id = ?;"
     try:
-        with sqlite3.connect(DB_PATH) as conn:
-            cursor = conn.cursor()
-            cursor.execute(query, (id,))
-            row = cursor.fetchone()
+        async with aiosqlite.connect(DB_PATH) as conn:
+            cursor = await conn.cursor()
+            await cursor.execute(query, (id,))
+            row = await cursor.fetchone()
 
             if row:
                 return Book(id=row[0],
@@ -92,6 +89,31 @@ def get_book(id: str) -> Book | None:
                             year=row[4])
             else:
                 return Book()
-    except sqlite3.Error as e:
+    except aiosqlite.Error as e:
+        print(f"Ошибка при получении книги: {e}")
+        return None
+
+
+async def get_random_book() -> Book | None:
+    query = """
+    SELECT * FROM books
+    ORDER BY RANDOM()
+    LIMIT 1 OFFSET 1;
+    """
+    try:
+        async with aiosqlite.connect(DB_PATH) as conn:
+            cursor = await conn.cursor()
+            await cursor.execute(query)
+            row = await cursor.fetchone()
+
+            if row:
+                return Book(id=row[0],
+                            name=row[1],
+                            author=row[2],
+                            url=row[3],
+                            year=row[4])
+            else:
+                return Book()
+    except aiosqlite.Error as e:
         print(f"Ошибка при получении книги: {e}")
         return None

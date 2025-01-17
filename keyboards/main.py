@@ -1,4 +1,4 @@
-from aiogram.types import InlineKeyboardButton, InlineKeyboardMarkup
+from aiogram.types import InlineKeyboardButton, InlineKeyboardMarkup, ReplyKeyboardMarkup, KeyboardButton
 from aiogram.utils.keyboard import InlineKeyboardBuilder
 
 from db.crud import get_books
@@ -7,7 +7,8 @@ from keyboards.config import ITEMS_PER_PAGE
 kb_menu = InlineKeyboardMarkup(inline_keyboard=[
     [InlineKeyboardButton(text='Add new book', callback_data='add_book')],
     # [InlineKeyboardButton(text='Delete book', callback_data='delete_book')],
-    # [InlineKeyboardButton(text='Get book with ID', callback_data='get_book')],
+    [InlineKeyboardButton(text='Get random book', callback_data='get_random')],
+    [InlineKeyboardButton(text='Get book by ID', callback_data='get_book')],
     [InlineKeyboardButton(text='Get book list', callback_data='navigate:1')]
 ])
 
@@ -15,8 +16,12 @@ kb_back = InlineKeyboardMarkup(inline_keyboard=[
     [InlineKeyboardButton(text='Menu', callback_data='menu')]
 ])
 
+kb_back_from_everywhere = ReplyKeyboardMarkup(keyboard=[
+    [KeyboardButton(text='/menu')]
+], resize_keyboard=True)
+
 async def kb_list(page: int = 1):
-    books = get_books()
+    books = await get_books()
 
     total_items = books.get_size()
     total_pages = (total_items + ITEMS_PER_PAGE - 1) // ITEMS_PER_PAGE
